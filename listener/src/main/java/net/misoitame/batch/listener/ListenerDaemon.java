@@ -32,7 +32,7 @@ public class ListenerDaemon {
 		latch = new CountDownLatch(1);
 		port(12345);
 
-		get("/stop/", (req, res) -> {
+		get("/shake/", (req, res) -> {
 			latch.countDown();
 			return "accept stop signal.";
 		});
