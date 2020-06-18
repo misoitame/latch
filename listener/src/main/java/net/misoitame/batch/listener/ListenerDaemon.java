@@ -1,8 +1,7 @@
 package net.misoitame.batch.listener;
 
-import static spark.Spark.get;
-import static spark.SparkBase.port;
-import static spark.SparkBase.stop;
+import static spark.Spark.*;
+import static spark.SparkBase.*;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +32,7 @@ public class ListenerDaemon {
 		latch = new CountDownLatch(1);
 		port(12345);
 
-		get("/stop/", (req, res) -> {
+		get("/shake/", (req, res) -> {
 			latch.countDown();
 			return "accept stop signal.";
 		});
@@ -55,17 +54,17 @@ public class ListenerDaemon {
 					.withRegion(Region.getRegion(Regions.AP_NORTHEAST_1)).build();
 			SQSConnection connection = connectionFactory.createConnection();
 			Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-			
+
 			//member
 			Queue queue = session.createQueue(QueueSender.QUEUE_MEMBER);
 			MessageConsumer consumer = session.createConsumer(queue);
 			consumer.setMessageListener(new MemberQueueListener());
-			
+
 			//action
 			Queue aQueue = session.createQueue(QueueSender.QUEUE_ACTION);
 			MessageConsumer aConsumer = session.createConsumer(aQueue);
 			aConsumer.setMessageListener(new ActionQueueListener());
-			
+
 			connection.start();
 
 		} catch (JMSException e1) {
@@ -73,7 +72,7 @@ public class ListenerDaemon {
 			e1.printStackTrace();
 		}
 
-		// Start receiving 
+		// Start receiving
 		try {
 			latch.await();
 			Thread.sleep(3000);
@@ -82,7 +81,7 @@ public class ListenerDaemon {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println("over.");
+		System.out.println("over&over.");
 	}
 
 	private static class MemberQueueListener implements MessageListener {
